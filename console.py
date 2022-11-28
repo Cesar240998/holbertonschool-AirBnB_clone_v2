@@ -37,7 +37,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -73,7 +72,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] =='}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,23 +114,47 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        try:
-            if not args:
-                raise SyntaxError()
-            my_list = args.split(" ")
-            obj = eval("{}()".format(my_list[0]))
-            # Params
-            my_params = my_list[1:]
-            for i in my_params:
-                split_param = i.split("=")
-                to_rep = split_param[1].replace("_", " ")
-                obj.__dict__[split_param[0]] = to_rep
-            obj.save()
-            print("{}".format(obj.id))
-        except SyntaxError:
+        pline = args.split()
+        _cls = pline[0]
+        values = []
+        names = []
+        if not _cls:
             print("** class name missing **")
-        except NameError:
+            return
+        elif _cls not in HBNBCommand.classes:
             print("** class doesn't exist **")
+            return
+        for i in range(1, len(pline)):
+            tupl = pline[i].partition('=')
+            names.append(tupl[0])
+            try:
+                if tupl[2][0] == '\"' and tupl[2][-1] == '\"':
+                    value = tupl[2].replace('\"', '')
+                    value = value.replace('_', ' ')
+                    values.append(value)
+                else:
+                    value = tupl[2]
+                    if '.' in value or type(value) is float:
+                        try:
+                            value = float(value)
+                            values.append(value)
+                        except Exception:
+                            pass
+                    else:
+                        try:
+                            value = int(value)
+                            values.append(value)
+                        except Exception:
+                            pass
+            except IndexError:
+                continue
+
+        dictionary = dict(zip(names, values))
+
+        new_instance = HBNBCommand.classes[_cls]()
+        new_instance.__dict__.update(dictionary)
+        new_instance.save()
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -213,11 +236,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all(HBNBCommand.classes[args]).items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -326,6 +349,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
