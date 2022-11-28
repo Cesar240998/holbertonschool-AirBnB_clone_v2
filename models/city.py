@@ -1,22 +1,30 @@
 #!/usr/bin/python3
-""" City Module for HBNB project """
+"""This is the city class"""
 from models.base_model import BaseModel, Base
-from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import String
-from sqlalchemy.orm import relationship, backref
-from os import getenv
+from sqlalchemy import Column, String, ForeignKey, Integer
+from sqlalchemy.orm import relationship
+from os import environ
+from uuid import uuid4
 
-
-if getenv('HBNB_TYPE_STORAGE') == 'db':
+s = "HBNB_TYPE_STORAGE"
+if s in environ.keys() and environ["HBNB_TYPE_STORAGE"] == "db":
     class City(BaseModel, Base):
-        """ The city class, contains state ID and name """
-        __tablename__ = 'cities'
-        name = Column(String(128), nullable=False)
+        '''
+        This is the class for City Attributes
+        '''
+        __tablename__ = "cities"
         state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
-        places = relationship('Place', backref='cities',
-                              cascade="all, delete, delete-orphan")
+        name = Column(String(128), nullable=False)
+        places = relationship("Place", backref="cities", cascade="all,delete")
+
+        def __init__(self, **kwargs):
+            setattr(self, "id", str(uuid4()))
+            for i, j in kwargs.items():
+                setattr(self, i, j)
 else:
     class City(BaseModel):
-        """ The city class, contains state ID and name """
-        name = ''
-        state_id = ''
+        '''
+        This is the class for City
+        '''
+        state_id = ""
+        name = ""
