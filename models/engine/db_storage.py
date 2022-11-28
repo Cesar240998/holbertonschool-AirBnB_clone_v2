@@ -1,76 +1,102 @@
 #!/usr/bin/python3
-# This is the file storage class for AirBnB
-
-import os
+"""This module defines a class to manage db storage for hbnb clone"""
+import json
+from sqlalchemy import (create_engine)
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.scoping import scoped_session
-from sqlalchemy import create_engine
-from models import *
+from models.city import City
+from models.state import State
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+from models.user import User
+from models.base_model import Base
+import MySQLdb
+import os
+# from sqlalchemy.ext.declarative import declarative_base
+# Base = declarative_base()
 
 
 class DBStorage:
+    """This class manages storage of hbnb models in Database"""
     __engine = None
     __session = None
-    valid_classes = ["User", "State", "City", "Amenity", "Place", "Review"]
+    classes = [City, State, User, Amenity, Place, Review]
 
     def __init__(self):
-        self.__engine = create_engine("mysql+mysqldb://" +
-                                      os.environ['HBNB_MYSQL_USER'] +
-                                      ":" + os.environ['HBNB_MYSQL_PWD'] +
-                                      "@" + os.environ['HBNB_MYSQL_HOST'] +
-                                      ":3306/" +
-                                      os.environ['HBNB_MYSQL_DB'])
+        """
+            Initialize the connection with database
+            ENV = test, delete all tables
+        """
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
+                            os.environ['HBNB_MYSQL_USER'],
+                            os.environ['HBNB_MYSQL_PWD'],
+                            os.environ['HBNB_MYSQL_HOST'],
+                            os.environ['HBNB_MYSQL_DB']), pool_pre_ping=True)
+        if "HBNB_ENV" in os.environ and os.environ["HBNB_ENV"] == "test":
+            Base.metadata.drop_all(self.__engine)
 
-        try:
-            if os.environ['HBNB_MYSQL_ENV'] == "test":
-                Base.metadata.drop_all(self.__engine)
-        except KeyError:
-            pass
+    def list_to_dict(self, l):
+        """
+            Transform a list of objects
+            into dict where
+            key = class_name.id_object
+            value = the object himself
+        """
+        d = {}
+        for obj in l:
+            key = obj.__class__.__name__ + '.' + obj.id
+            d[key] = obj
+        return d
 
     def all(self, cls=None):
-        storage = {}
+        """
+            Select Table or All table
+            and all objects in dict
+        """
+        d = {}
         if cls is None:
-            for cls_name in self.valid_classes:
-                for instance in self.__session.query(eval(cls_name)):
-                    storage[instance.id] = instance
+            tmp_l = []
+            for c in self.classes:
+                for o in self.__session.query(c).all():
+                    tmp_l.append(o)
+            return self.list_to_dict(tmp_l)
         else:
-            if cls not in self.valid_classes:
-                return
-            for instance in self.__session.query(eval(cls)):
-                storage[instance.id] = instance
-
-        return storage
+            l = self.__session.query(cls).all()
+            return self.list_to_dict(l)
 
     def new(self, obj):
-        self.__session.add(obj)
+        """
+            Add new object into the database
+        """
+        if obj:
+            self.__session.add(obj)
+            # self.save()
 
     def save(self):
-        try:
-            self.__session.commit()
-        except:
-            self.__session.rollback()
-            raise
-        finally:
-            self.__session.close()
-
-    def update(self, cls, obj_id, key, new_value):
-        res = self.__session.query(eval(cls)).filter(eval(cls).id == obj_id)
-
-        if res.count() == 0:
-            return 0
-
-        res.update({key: (new_value)})
-        return 1
-
-    def reload(self):
-        Base.metadata.create_all(self.__engine)
-        self.__session = scoped_session(sessionmaker(bind=self.__engine))
+        """
+            Save into database changes on the object
+        """
+        self.__session.commit()
 
     def delete(self, obj=None):
-        if obj is None:
-            return
-
-        self.__session.delete(obj)
+        """
+            Delete the object from the database
+        """
+        if obj:
+            self.__session.delete(obj)
 
     def close(self):
-        self.__session.remove()
+        """ Release any connection/transactional
+            resources owned by the Session first,
+            then discarding the Session itself.
+        """
+        self.__session.close()
+
+    def reload(self):
+        """
+            Reload/create tables from class mapped
+            Create a session
+        """
+        Base.metadata.create_all(self.__engine)
+        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        self.__session = Session()
