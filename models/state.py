@@ -1,23 +1,24 @@
 #!/usr/bin/python3
 # This is the state class
 import models
-from models import *
+from models.base_model import BaseModel,Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship, backref
-from os import getenv
+from models import storage_t
 
+if storage_t == "db":
+    class State(BaseModel, Base):
+        __tablename__ = "states"
+        name = Column(String(128), nullable=False)
 
-class State(BaseModel, Base):
-    __tablename__ = "states"
-    name = Column(String(128), nullable=False)
-
-    cities = relationship("City", backref="state",
+        cities = relationship("City", backref="state",
                           cascade="all, delete, delete-orphan")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
 
-    if getenv('HBNB_TYPE_STORAGE', '') != 'db':
+else:
+    class State(BaseModel):
         @property
         def cities(self):
             all_cities = models.storage.all("City")

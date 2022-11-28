@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 """This is the amenity class"""
-from models.base_model import BaseModel
+from models.base_model import BaseModel,Base
+from  models import storage_t
 
-s = "HBNB_TYPE_STORAGE"
-if s in environ.keys() and environ["HBNB_TYPE_STORAGE"] == "db":
+#s = "HBNB_TYPE_STORAGE"
+if storage_t == "db":
     class Amenity(BaseModel, Base):
         """
         This is the state class
