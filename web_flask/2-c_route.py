@@ -16,6 +16,7 @@ def hello_HBNB():
     """Return message HBNB"""
     return "HBNB"
 
+
 @app.route("/c/<string:text>", strict_slashes=False)
 def c_is_fun(text):
     """Display C followed by text"""
