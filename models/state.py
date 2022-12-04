@@ -5,11 +5,10 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String
 from sqlalchemy.orm import relationship
 from models.city import City
-import models
+from models import storage
 from os import getenv
 
-
-if getenv('HBNB_TYPE_STORAGE') == 'db':
+if storage == "db":
     class State(BaseModel, Base):
         """ State class """
         __tablename__ = 'states'

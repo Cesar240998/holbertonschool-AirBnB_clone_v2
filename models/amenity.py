@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 """This is the amenity class"""
 from models.base_model import BaseModel,Base
-from  models import storage_t
+from  models import storage
 
 #s = "HBNB_TYPE_STORAGE"
-if storage_t == "db":
+if storage == "db":
     class Amenity(BaseModel, Base):
         """
         This is the state class

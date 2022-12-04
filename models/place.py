@@ -5,6 +5,7 @@ from sqlalchemy import Column, String, ForeignKey, Integer, Float, Table
 from sqlalchemy.orm import relationship
 from os import environ
 from uuid import uuid4
+from models import storage
 
 
 place_amenity = Table(
@@ -20,8 +21,7 @@ place_amenity = Table(
         String(60),
         ForeignKey('amenities.id'),
         nullable=False))
-s = "HBNB_TYPE_STORAGE"
-if s in environ.keys() and environ["HBNB_TYPE_STORAGE"] == "db":
+if storage == "db":    
     class Place(BaseModel, Base):
         """This is the class for Place
         Attributes:

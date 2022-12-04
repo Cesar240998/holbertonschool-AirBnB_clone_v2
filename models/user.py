@@ -3,10 +3,10 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String
-from models import storage_t
+from models import storage
 
 #s = "HBNB_TYPE_STORAGE"
-if storage_t == "db":
+if storage == "db":
     class User(BaseModel, Base):
         """This is the class for user
         Attributes:
