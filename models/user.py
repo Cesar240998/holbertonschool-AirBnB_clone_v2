@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """This is the user class"""
 from models.base_model import BaseModel, Base
+import sqlalchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String
 from models import storage
@@ -23,10 +24,10 @@ if storage == "db":
         places = relationship("Place", backref="user")
         reviews = relationship("Review", backref="user")
 
-        def __init__(self, **kwargs):
-            setattr(self, "id", str(uuid4()))
-            for i, j in kwargs.items():
-                setattr(self, i, j)
+        def __init__(self, *args, **kwargs):
+            """initializes user"""
+            super().__init__(*args, **kwargs)
+
 else:
     class User(BaseModel):
         """This is the class for user
@@ -36,3 +37,7 @@ else:
         password = ""
         first_name = ""
         last_name = ""
+
+        def __init__(self, *args, **kwargs):
+            """initializes user"""
+            super().__init__(*args, **kwargs)
