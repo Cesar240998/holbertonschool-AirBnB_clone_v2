@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 """This is the amenity class"""
+import models
 from models.base_model import BaseModel,Base
 from  models import storage
+import sqlalchemy
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
 
-#s = "HBNB_TYPE_STORAGE"
 if storage == "db":
     class Amenity(BaseModel, Base):
         """
