@@ -63,9 +63,10 @@ class HBNBCommand(cmd.Cmd):
             if (regex_res is None):
                 continue
             valid_params.append(regex_res)
-                                                                                                                                                                                                                                                        new_instance = self.classes[arguments[0]]()
-                                                                                                                                                                                                                                                        for savings in valid_params:
-                                                                                                                                                                                                                                                            first = savings[0]
+
+        new_instance = self.classes[arguments[0]]()
+        for savings in valid_params:
+            first = savings[0]
             second = savings[1]
             setattr(new_instance, first, second)
         
