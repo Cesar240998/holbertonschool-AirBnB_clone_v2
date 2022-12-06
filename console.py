@@ -40,6 +40,27 @@ class HBNBCommand(cmd.Cmd):
         print("")
         return True
 
+    def splitter(self, string):
+        """This method split the string with brackets"""
+        final_list = []
+        flag = 1
+        tmp = ""
+        for char in string:
+            if (char == "["):
+                flag = 0
+            if (char == "]"):
+                flag = 1
+            if (char == " " and flag):
+                final_list.append(tmp)
+                tmp = ""
+                continue
+            tmp += char
+
+        if (tmp != ""):
+            final_list.append(tmp)
+
+        return (final_list)
+
     def do_create(self, args):
         """Usage: create <class> <key 1>=<value 2> <key 2>=<value 2> ...
         Create a new class instance with given keys/values and print its id.
