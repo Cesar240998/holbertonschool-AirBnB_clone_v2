@@ -60,9 +60,9 @@ class HBNBCommand(cmd.Cmd):
         for key_value in range(1, len_arguments):
             regex_res = self.regex_arguments(arguments[key_value])
 
-        if (regex_res is None):
-            continue
-                                                                                                                                                                                                                                                        valid_params.append(regex_res)
+            if (regex_res is None):
+                continue
+            valid_params.append(regex_res)
                                                                                                                                                                                                                                                         new_instance = self.classes[arguments[0]]()
                                                                                                                                                                                                                                                         for savings in valid_params:
                                                                                                                                                                                                                                                             first = savings[0]
