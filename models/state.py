@@ -14,7 +14,7 @@ if storage == "db":
         __tablename__ = 'states'
         name = Column(String(128), nullable=False)
         cities = relationship('City', backref='state',
-                              cascade='all, delete, delete-orphan')
+                              cascade='all')
 
 else:  # File Storage
     class State(BaseModel):
@@ -23,9 +23,8 @@ else:  # File Storage
 
         @property
         def cities(self):
-            cities_list = []
-            cities = models.storage.all(City).values()
-            for city in cities:
-                if city.state_id == self.id:
-                    cities_list.append(city)
-            return cities_list
+            l = []
+            for k, v in storage.all(City).items():
+                if v.state_id == self.id:
+                    l.append(v)
+            return l
