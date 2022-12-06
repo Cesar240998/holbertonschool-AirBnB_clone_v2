@@ -3,6 +3,7 @@
 import models
 from models.base_model import BaseModel,Base
 from  models import storage
+from uuid import uuid4
 import sqlalchemy
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
