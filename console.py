@@ -11,21 +11,19 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+import re
 
 
 class HBNBCommand(cmd.Cmd):
     """Defines the HolbertonBnB command interpreter."""
 
     prompt = "(hbnb) "
-    __classes = {
-        "BaseModel",
-        "User",
-        "State",
-        "City",
-        "Amenity",
-        "Place",
-        "Review"
-    }
+    
+    classes = {
+               'BaseModel': BaseModel, 'User': User, 'Place': Place,
+               'State': State, 'City': City, 'Amenity': Amenity,
+               'Review': Review
+              }
 
     def emptyline(self):
         """Ignore empty spaces."""
@@ -39,6 +37,35 @@ class HBNBCommand(cmd.Cmd):
         """EOF signal to exit the program."""
         print("")
         return True
+
+    def regex_arguments(self, test):
+        """Validate arguments passed for console with regex"""
+        searcher = r"^([a-zA-Z_]\w*)=(\".+\"|-?\d+|-?[0-9]+\.[0-9]+|\[.*\])$"
+        obj = re.search(searcher, test)
+
+        if (obj is not None):
+            obj = list(obj.groups())
+            if (re.search(r"^\".+\"$", obj[1]) is not None):
+                obj[1] = obj[1][1:-1]
+
+                length = len(obj[1])
+
+                if ('"' in obj[1]):
+                    for i in range(length):
+                        if (length == 1 and obj[1][0] == '"'):
+                            return (None)
+                        if (obj[1][i] == '"' and obj[1][i - 1] != '\\'):
+                            return (None)
+
+                obj[1] = obj[1].replace("_", " ")
+                obj[1] = obj[1].replace('\\"', '"')
+            elif (re.search(r"[0-9]+\.[0-9]+", obj[1]) is not None):
+                obj[1] = float(obj[1])
+            elif (re.search(r'-?[0-9]', obj[1])):
+                obj[1] = int(obj[1])
+            elif (re.search(r"^\[.*\]$", obj[1]) is not None):
+                obj[1] = json.loads(obj[1])
+        return (obj)
 
     def splitter(self, string):
         """This method split the string with brackets"""
@@ -334,5 +361,3 @@ class HBNBCommand(cmd.Cmd):
             cmd.Cmd.default(self, line)
 
 
-if __name__ == '__main__':
-    HBNBCommand().cmdloop()
